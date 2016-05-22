@@ -36,6 +36,11 @@ redeux state reducer interface = do
   let mutateState x = putMVar stateRef (x) >> runInterface
   (mutateState, ) <$> dupChan stateChan
 
+dupEnv :: Env s (Env s () -> IO ())
+dupEnv = do
+  var <- ask
+  pure $ flip runReaderT var
+
 modifyStateM_ :: (s -> IO s) -> Env s ()
 modifyStateM_ f = do
   var <- ask
