@@ -75,7 +75,9 @@ interpreter = iterM $ \case
     next
   Async command next -> do
     env <- Redeux.dupEnv
-    void . liftIO . forkIO . env $ interpreter command
+    void . liftIO . forkIO . env $ do
+      interpreter command
+      Redeux.revalidateUI
     next
 
 add :: Text -> Redeux.Command Action ()
@@ -106,7 +108,7 @@ todoMain state@Todo{..} = do
     header_ [class_ "header"] $ do
       h1_ [] "todos"
       input_ [ class_ "new-todo", placeholder_ "What needs to be done?"
-             , onKeyUp $ \_ -> {-do
+             , onKeyUp . const . async $ {-do
                 traceM $ DOM.key event
                 when (DOM.key event == "13") $-} add "_placeholder_"
              ]
