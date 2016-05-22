@@ -39,4 +39,4 @@ trace :: Redeux.Command grammer a -> Redeux.Command (Log grammer a) a
 trace = liftF . flip Trace id
 
 traceState :: Redeux.Command grammer a -> Redeux.Command (Log grammer a) a
-traceState = liftF . flip Trace id
+traceState = liftF . flip TraceState id
