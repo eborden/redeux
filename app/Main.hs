@@ -1,9 +1,7 @@
 {-# LANGUAGE DeriveFunctor, LambdaCase, OverloadedStrings, RecordWildCards #-}
 module Main where
 
-import Control.Concurrent (forkIO)
 import Control.Monad (when, void)
-import Control.Monad.Trans (liftIO)
 import Control.Monad.Free (liftF, iterM)
 import Data.Text (Text)
 import Data.Monoid ((<>))
@@ -16,7 +14,8 @@ import Redeux.DOM
 main :: IO ()
 main = do
   inject <- DOM.createInjector
-  void . Redeux.redeux initialTodo interpreter $ inject todoMain
+  void . Redeux.redeux initialTodo reducer $ inject todoMain
+
 
 data Todo
   = Todo
@@ -36,6 +35,7 @@ initialTodo = Todo { currentFilter = All
 data Filter = All | Active | Complete
   deriving (Show)
 
+
 data Action next
   = Add Text next
   | Edit (Maybe Int) next
@@ -43,11 +43,10 @@ data Action next
   | Delete Int next
   | SetFilter Filter next
   | ToggleComplete Int next
-  | Async (Redeux.Command Action ()) next
   deriving (Functor)
 
-interpreter :: Redeux.Reducer Action Todo a
-interpreter = iterM $ \case
+reducer :: Redeux.Reducer Action Todo a
+reducer = iterM $ \case
   Add str next -> do
     Redeux.modifyState_ $ \s -> s {todos = todos s ++ [(str, False)]}
     next
@@ -73,12 +72,6 @@ interpreter = iterM $ \case
       let (heads, (str, bool):tails) = splitAt target $ todos s
       in s {todos = heads ++ (str, not bool):tails}
     next
-  Async command next -> do
-    env <- Redeux.dupEnv
-    void . liftIO . forkIO . env $ do
-      interpreter command
-      Redeux.revalidateUI
-    next
 
 add :: Text -> Redeux.Command Action ()
 add = liftF . flip Add ()
@@ -97,11 +90,8 @@ toggleComplete = liftF . flip ToggleComplete ()
 
 setFilter :: Filter -> Redeux.Command Action ()
 setFilter = liftF . flip SetFilter ()
-
-async :: Redeux.Command Action () -> Redeux.Command Action ()
-async = liftF . flip Async ()
-
     
+
 todoMain :: Todo -> DOM Action ()
 todoMain state@Todo{..} = do
   section_ [class_ "todoapp"] $ do
