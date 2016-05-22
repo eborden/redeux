@@ -35,6 +35,7 @@ initialTodo = Todo { currentFilter = All
 data Filter = All | Active | Complete
   deriving (Show)
 
+
 data Action next
   = Add Text next
   | Edit (Maybe Int) next

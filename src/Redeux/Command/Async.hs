@@ -14,7 +14,7 @@ data Control grammer a next
   deriving (Functor)
 
 reducer :: Redeux.Reducer grammer state a
-            -> Redeux.Reducer (Control grammer a) state a
+        -> Redeux.Reducer (Control grammer a) state a
 reducer subReducer = iterM $ \case
   Sync command next -> subReducer command >>= next
   Async command next -> do
