@@ -108,7 +108,7 @@ todoMain state@Todo{..} = do
     header_ [class_ "header"] $ do
       h1_ [] "todos"
       input_ [ class_ "new-todo", placeholder_ "What needs to be done?"
-             , onKeyUp . const . async $ {-do
+             , onKeyUp_ $ {-do
                 traceM $ DOM.key event
                 when (DOM.key event == "13") $-} add "_placeholder_"
              ]
