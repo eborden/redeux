@@ -1,7 +1,7 @@
 # Redeux
 Haskell Redux-y Virtual-Dom-y Thanger
 
-You shouldn't use this, I'm just having fun.
+`note: You shouldn't use this, I'm just having fun.`
 
 ## Key Features
 - The command pattern has been replaced with a free monad for a more flexible mutation grammer.
