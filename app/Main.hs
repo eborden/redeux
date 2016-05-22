@@ -46,27 +46,27 @@ data Action next
 interpreter :: Redeux.Reducer Action Todo a
 interpreter = iterM $ \case
   Add str next -> do
-    Redeux.modifyState $ \s -> s {todos = todos s ++ [(str, False)]}
+    Redeux.modifyState_ $ \s -> s {todos = todos s ++ [(str, False)]}
     next
   Edit target next -> do
-    Redeux.modifyState $ \s -> s {editing = target}
+    Redeux.modifyState_ $ \s -> s {editing = target}
     next
   Update target str next -> do
-    Redeux.modifyState $ \s ->
+    Redeux.modifyState_ $ \s ->
       let (heads, (_, bool):tails) = splitAt target $ todos s
       in s {todos = heads ++ (str, bool):tails}
     next
   Delete target next -> do
-    Redeux.modifyState $ \s ->
+    Redeux.modifyState_ $ \s ->
       case splitAt target $ todos s of
         (heads, _:tails) -> s {todos = heads ++ tails}
         (heads, tails)   -> s {todos = heads ++ tails}
     next
   SetFilter newFilter next -> do
-    Redeux.modifyState $ \s -> s {currentFilter = newFilter}
+    Redeux.modifyState_ $ \s -> s {currentFilter = newFilter}
     next
   ToggleComplete target next -> do
-    Redeux.modifyState $ \s ->
+    Redeux.modifyState_ $ \s ->
       let (heads, (str, bool):tails) = splitAt target $ todos s
       in s {todos = heads ++ (str, not bool):tails}
     next

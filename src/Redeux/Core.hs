@@ -36,16 +36,18 @@ redeux state reducer interface = do
   let mutateState x = putMVar stateRef (x) >> runInterface
   (mutateState, ) <$> dupChan stateChan
 
-getState :: Env s s
-getState = liftIO . readMVar =<< ask
-
-writeState :: s -> Env s ()
-writeState s = liftIO . flip putMVar s =<< ask
-
-withState :: (s -> Env s r) -> Env s r
-withState f = do
+modifyStateM_ :: (s -> IO s) -> Env s ()
+modifyStateM_ f = do
   var <- ask
-  liftIO $ withMVar var $ \x -> runReaderT (f x) var
+  liftIO $ modifyMVar_ var f
 
-modifyState :: (s -> s) -> Env s ()
-modifyState f = liftIO . flip modifyMVar_ (pure . f) =<< ask
+modifyStateM :: (s -> IO (s, r)) -> Env s r
+modifyStateM f = do
+  var <- ask
+  liftIO $ modifyMVar var f
+
+modifyState_ :: (s -> s) -> Env s ()
+modifyState_ f = liftIO . flip modifyMVar_ (pure . f) =<< ask
+
+modifyState :: (s -> (s, r)) -> Env s r
+modifyState f = liftIO . flip modifyMVar (pure . f) =<< ask
