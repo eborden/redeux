@@ -1,15 +1,15 @@
 {-# LANGUAGE DeriveFunctor, LambdaCase, OverloadedStrings, RecordWildCards #-}
 module Main where
 
-import Control.Monad (when, void)
+import Control.Monad      (when, void)
 import Control.Monad.Free (liftF, iterM)
-import Data.Text (Text)
-import Data.Monoid ((<>))
-import Data.String (fromString)
+import Data.Text          (Text)
+import Data.Monoid        ((<>))
+import Data.String        (fromString)
 
-import qualified Redeux as Redeux
+import qualified Redeux          as Redeux
 import qualified Redeux.DOM.Core as DOM
-import Redeux.DOM
+import           Redeux.DOM
 
 main :: IO ()
 main = do
@@ -34,7 +34,6 @@ initialTodo = Todo { currentFilter = All
 
 data Filter = All | Active | Complete
   deriving (Show)
-
 
 data Action next
   = Add Text next

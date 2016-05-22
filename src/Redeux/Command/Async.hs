@@ -1,5 +1,5 @@
 {-# LANGUAGE LambdaCase, DeriveFunctor #-}
-module Redeux.Async where
+module Redeux.Command.Async (Control, reducer, async, sync) where
 
 import Control.Concurrent (forkIO)
 import Control.Monad (void)
@@ -7,7 +7,6 @@ import Control.Monad.Trans (liftIO)
 import Control.Monad.Free (iterM, liftF)
 
 import qualified Redeux as Redeux
-
 
 data Control grammer a next
   = Sync (Redeux.Command grammer a) (a -> next)
