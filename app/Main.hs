@@ -168,7 +168,7 @@ todoFooter Todo{..} =
         ]
     when (any snd todos) $ do
       button_ [ class_ "clear-completed"
-              , onClick_ . mapM_ (\x -> when (snd (snd x)) $ delete (fst x))
+              , onClick_ . mapM_ (\(index, (_, completed)) -> when completed $ delete index)
                          . reverse $ zip [0..] todos
               ] "Clear completed"
     
