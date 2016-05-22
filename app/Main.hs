@@ -75,7 +75,7 @@ interpreter = iterM $ \case
     next
   Async command next -> do
     env <- Redeux.dupEnv
-    liftIO . void . forkIO . env $ interpreter command
+    void . liftIO . forkIO . env $ interpreter command
     next
 
 add :: Text -> Redeux.Command Action ()
