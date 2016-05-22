@@ -127,7 +127,7 @@ todoMain state@Todo{..} = do
 
 todoList :: Todo -> DOM Action ()
 todoList Todo{..} =
-  foldMap (mkTodo editing) . zip [0..] $ filter (filters currentFilter) todos
+  foldMap (mkTodo editing) . filter (filters currentFilter . snd) $ zip [0..] todos
 
 filters :: Filter -> (Text, Bool) -> Bool
 filters f (_, complete) = case f of
