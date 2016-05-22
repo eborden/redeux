@@ -6,18 +6,15 @@ import Control.Monad.Free (liftF, iterM)
 import Data.Text (Text)
 import Data.Monoid ((<>))
 import Data.String (fromString)
-import Data.IORef
 
 import qualified Redeux as Redeux
 import qualified Redeux.DOM.Core as DOM
 import Redeux.DOM
 
-import Debug.Trace
-
 main :: IO ()
 main = do
-  initial <- newIORef Nothing
-  void . Redeux.redeux initialTodo interpreter $ DOM.inject initial todoMain
+  inject <- DOM.createInjector
+  void . Redeux.redeux initialTodo interpreter $ inject todoMain
 
 data Todo
   = Todo
@@ -99,7 +96,7 @@ todoMain state@Todo{..} = do
     header_ [class_ "header"] $ do
       h1_ [] "todos"
       input_ [ class_ "new-todo", placeholder_ "What needs to be done?"
-             , onKeyUp $ \event -> {-do
+             , onKeyUp $ \_ -> {-do
                 traceM $ DOM.key event
                 when (DOM.key event == "13") $-} add "_placeholder_"
              ]

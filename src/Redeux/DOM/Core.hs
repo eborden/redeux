@@ -151,6 +151,12 @@ eventToVdom sink Handler{..} = case eventType of
   Focus -> Ev.focus (\e -> sink $ callback (FocusEvent e))
   Blur -> Ev.blur (\e -> sink $ callback (FocusEvent e))
 
+createInjector :: Show state
+               => IO ((state -> DOM grammer ()) -> Sink grammer -> state -> IO ())
+createInjector = do
+  emptyMount <- newIORef Nothing
+  pure $ inject emptyMount
+
 inject :: Show state
        => IORef (Maybe VMount)
        -> (state -> DOM grammer ())
