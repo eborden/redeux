@@ -1,5 +1,10 @@
 {-# LANGUAGE LambdaCase, OverloadedStrings, GeneralizedNewtypeDeriving, TypeFamilies, RecordWildCards, QuasiQuotes #-}
-module Redeux.DOM.Core where
+module Redeux.DOM.Core
+  ( DOM
+  , Handler(..), AttrOrHandler(..)
+  , MouseHandler, FocusHandler, KeyboardHandler
+  , el_, text, key
+  , createInjector) where
 
 import Data.IORef
 import Data.String
@@ -75,14 +80,14 @@ data AttrOrHandler grammer
   | OrAttr (Text, Text)
   | OrEmpty
 
-reactAttr :: [AttrOrHandler grammer] -> [(Text, Text)]
-reactAttr = concatMap (\case
+getAttrs :: [AttrOrHandler grammer] -> [(Text, Text)]
+getAttrs = concatMap (\case
   OrHandler _ -> []
   OrEmpty -> []
   OrAttr x -> [x])
 
-reactHandler :: [AttrOrHandler grammer] -> [Handler grammer]
-reactHandler = concatMap (\case
+getHandlers :: [AttrOrHandler grammer] -> [Handler grammer]
+getHandlers = concatMap (\case
   OrAttr _ -> []
   OrEmpty -> []
   OrHandler x -> [x])
@@ -106,8 +111,8 @@ el_ :: Text -> [AttrOrHandler grammer] -> DOM grammer a -> DOM grammer a
 el_ tagStr attrs childr = do
   let (x, childr') = run childr
   dom x . Singleton $ Elem { tag = tagStr
-                              , attributes = reactAttr attrs
-                              , handlers = reactHandler attrs
+                              , attributes = getAttrs attrs
+                              , handlers = getHandlers attrs
                               , children = [childr']
                               } 
 
