@@ -87,29 +87,20 @@ reactHandler = concatMap (\case
   OrEmpty -> []
   OrHandler x -> [x])
 
-data Handler grammer
-  = Handler
-  { eventType :: EventType
-  , callback  :: EventData -> Command grammer ()
-  }
+type KeyboardHandler grammer = Ev.KeyboardEvent -> Command grammer ()
+type MouseHandler grammer = Ev.MouseEvent -> Command grammer ()
+type FocusHandler grammer = Ev.FocusEvent -> Command grammer ()
 
 instance Show (Handler g) where
-  show x = show $ eventType x
+  show _ = "Handler"
 
-data EventData
-  = KeyboardEvent Ev.KeyboardEvent
-  | FocusEvent Ev.FocusEvent
-  | MouseEvent Ev.MouseEvent
-                
-data EventType
-  = Click | DoubleClick | MouseOver | MouseOut
-  | KeyUp | KeyDown
-  | Focus | Blur
-  deriving (Show)
+data Handler g
+  = Click (MouseHandler g) | DoubleClick (MouseHandler g) | MouseOver (MouseHandler g) | MouseOut (MouseHandler g)
+  | KeyUp (KeyboardHandler g) | KeyDown (KeyboardHandler g)
+  | Focus (FocusHandler g) | Blur (FocusHandler g)
 
-key :: EventData -> String
-key (KeyboardEvent ev) = show $ Ev.key ev
-key _ = "Dead"
+key :: Ev.KeyboardEvent -> String
+key ev = show $ Ev.key ev
 
 el_ :: Text -> [AttrOrHandler grammer] -> DOM grammer a -> DOM grammer a
 el_ tagStr attrs childr = do
@@ -141,15 +132,15 @@ attrToVdom ("class", val) = A.class_ . JS.pack $ Text.unpack val
 attrToVdom (name, val) = A.Attribute (JS.pack $ Text.unpack name) (pToJSVal . JS.pack $ Text.unpack val)
 
 eventToVdom :: Sink grammer -> Handler grammer -> A.Attribute
-eventToVdom sink Handler{..} = case eventType of
-  Click -> Ev.click (\e -> sink $ callback (MouseEvent e))
-  DoubleClick -> Ev.dblclick (\e -> sink $ callback (MouseEvent e))
-  MouseOut -> Ev.mouseout (\e -> sink $ callback (MouseEvent e))
-  MouseOver -> Ev.mouseover (\e -> sink $ callback (MouseEvent e))
-  KeyUp -> Ev.keyup (\e -> sink $ callback (KeyboardEvent e))
-  KeyDown -> Ev.keydown (\e -> sink $ callback (KeyboardEvent e))
-  Focus -> Ev.focus (\e -> sink $ callback (FocusEvent e))
-  Blur -> Ev.blur (\e -> sink $ callback (FocusEvent e))
+eventToVdom sink handler = case handler of
+  Click callback -> Ev.click (\e -> sink $ callback e)
+  DoubleClick callback -> Ev.dblclick (\e -> sink $ callback e)
+  MouseOut callback -> Ev.mouseout (\e -> sink $ callback e)
+  MouseOver callback -> Ev.mouseover (\e -> sink $ callback e)
+  KeyUp callback -> Ev.keyup (\e -> sink $ callback e)
+  KeyDown callback -> Ev.keydown (\e -> sink $ callback e)
+  Focus callback -> Ev.focus (\e -> sink $ callback e)
+  Blur callback -> Ev.blur (\e -> sink $ callback e)
 
 createInjector :: Show state
                => IO ((state -> DOM grammer ()) -> Sink grammer -> state -> IO ())

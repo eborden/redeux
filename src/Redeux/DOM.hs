@@ -54,19 +54,20 @@ checked_ b =
   if b then attr_ "checked" "checked"
        else OrEmpty
 
-on :: EventType -> (EventData -> Command grammer ()) -> AttrOrHandler grammer
-on t f = OrHandler $ Handler { eventType = t
-                             , callback  = f
-                             }
+onClick, onDoubleClick :: MouseHandler grammer -> AttrOrHandler grammer
+onClick f = OrHandler $ Click f
+onDoubleClick f = OrHandler $ DoubleClick f
 
-onClick, onDoubleClick, onBlur, onKeyUp :: (EventData -> Command grammer ()) -> AttrOrHandler grammer
-onClick f = on Click f
-onDoubleClick f = on DoubleClick f
-onBlur f = on Blur f
-onKeyUp f = on KeyUp f
+onBlur :: FocusHandler grammer -> AttrOrHandler grammer
+onBlur f = OrHandler $ Blur f
 
-onClick_, onDoubleClick_, onBlur_, onKeyUp_ :: Command grammer () -> AttrOrHandler grammer
+onKeyUp, onKeyDown :: KeyboardHandler grammer -> AttrOrHandler grammer
+onKeyUp f = OrHandler $ KeyUp f
+onKeyDown f = OrHandler $ KeyDown f
+
+onClick_, onDoubleClick_, onBlur_, onKeyUp_, onKeyDown_ :: Command grammer () -> AttrOrHandler grammer
 onClick_ = onClick . const
 onDoubleClick_ = onDoubleClick . const
 onBlur_ = onBlur . const
 onKeyUp_ = onKeyUp . const
+onKeyDown_ = onKeyDown . const
