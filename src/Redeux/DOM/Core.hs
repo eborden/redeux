@@ -133,14 +133,14 @@ attrToVdom (name, val) = A.Attribute (JS.pack $ Text.unpack name) (pToJSVal . JS
 
 eventToVdom :: Sink grammer -> Handler grammer -> A.Attribute
 eventToVdom sink handler = case handler of
-  Click callback -> Ev.click (\e -> sink $ callback e)
-  DoubleClick callback -> Ev.dblclick (\e -> sink $ callback e)
-  MouseOut callback -> Ev.mouseout (\e -> sink $ callback e)
-  MouseOver callback -> Ev.mouseover (\e -> sink $ callback e)
-  KeyUp callback -> Ev.keyup (\e -> sink $ callback e)
-  KeyDown callback -> Ev.keydown (\e -> sink $ callback e)
-  Focus callback -> Ev.focus (\e -> sink $ callback e)
-  Blur callback -> Ev.blur (\e -> sink $ callback e)
+  Click callback -> Ev.click $ sink . callback
+  DoubleClick callback -> Ev.dblclick $ sink . callback
+  MouseOut callback -> Ev.mouseout $ sink . callback
+  MouseOver callback -> Ev.mouseover $ sink . callback
+  KeyUp callback -> Ev.keyup $ sink . callback
+  KeyDown callback -> Ev.keydown $ sink . callback
+  Focus callback -> Ev.focus $ sink . callback
+  Blur callback -> Ev.blur $ sink . callback
 
 createInjector :: Show state
                => IO ((state -> DOM grammer ()) -> Sink grammer -> state -> IO ())
